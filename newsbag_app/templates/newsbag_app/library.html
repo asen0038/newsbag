@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>News Bag</title>
+  </head>
+  <body>{% include "newsbag_app/navbar.html" %}</body>
+  <button class="btn btn-dark" onclick="location.href='/collection/{{ user.id }}'" style="margin: 10px">Back</button>
+
+  <body class="p-0 mb-0 bg-success text-white">
+  <p class="lead text-center text-body font-weight-normal">
+      <br>
+      Welcome to your {{ library.name  }}'s library! Here you can view all the articles you have added <br>
+      previously. You may remove any article from the library if not needed. You can also select an article <br>
+      to conduct a similarity check with other articles by clicking the 'compare' button.  It will then show <br>
+      all the articles that are similar towards the left side of the screen and the other that are different <br>
+      on the right side of the screen. You can reset them anytime by clicking the 'back' button.
+  </p>
+
+  {% for article in articles %}
+      <div class="card mb-3 border-dark" style="max-width: 750px; margin-left: 350px">
+          <div class="row no-gutters">
+            <div class="col-md-4">
+              <img src={{ article.image_path }} class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title text-dark">{{ article.title }}</h5>
+                <p class="card-text text-body">{{ article.content }}</p>
+                <a href="{{ article.source_link }}" class="btn btn-primary"> See more at: {{ article.source_name }} </a>
+                {% if not one %}
+                    <a id="btnFetch" href="/compare/{{ library.id }}/{{ article.id }}" class="btn btn-primary"> Compare </a>
+                {% endif %}
+                  <br>
+                  <br>
+                  <form method="POST" id="delete" onsubmit="return display()">
+                      {% csrf_token %}
+                      <input id="tag" class="btn btn-danger" type="submit" value="Remove Article"/>
+                      <input id="tag" name="cid" type="hidden" value="{{ article.id }}"/>
+                  </form>
+                <script>
+                  function display() {
+                      var r=confirm("Are you sure you want to remove this article from this library?");
+                      if (r==true){
+                          return true;
+                      }
+                      else{
+                        return false;
+                      }
+                  }
+                </script>
+              </div>
+            </div>
+          </div>
+      </div>
+  {% endfor %}
+
+  <script>
+      $(document).ready(function() {
+            $("#btnFetch").click(function() {
+              // disable button
+              $(this).prop("disabled", true);
+              // add spinner to button
+              $(this).html(
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+              );
+            });
+        });
+  </script>
+
+  </body>
+
+</html>

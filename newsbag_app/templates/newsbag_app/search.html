@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search results</title>
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- MDB -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/5.0.0/mdb.min.css"
+      rel="stylesheet"
+    />
+</head>
+<body class="bg-info">
+{% include "newsbag_app/navbar.html" %}
+<br>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for cluster in result %}
+  <div class="col">
+    <div class="card">
+      <img class="card-img-top" src={{ cluster.r_image }} alt={{ cluster.r_image }}/>
+      <div class="card-body">
+        <h5 class="card-title">{{ cluster.r_title }}</h5>
+        <p class="card-text">{{ cluster.r_summary }}</p>
+      </div>
+      <ul class="list-group list-group-light list-group-small">
+        {% for story in cluster.stories %}
+            <a
+                class="list-group-item px-4"
+                href="{{ story.source_link }}"
+            >
+                {{ story.source_name }}
+            </a>
+        {% endfor %}
+      </ul>
+      <div class="card-body">
+          {% if cluster.r_sentiment == "positive" %}
+              <span class="badge badge-success">{{ cluster.r_sentiment }}</span>
+          {% elif cluster.r_sentiment == "negative" %}
+              <span class="badge badge-danger">{{ cluster.r_sentiment }}</span>
+          {% else %}
+              <span class="badge badge-warning">{{ cluster.r_sentiment }}</span>
+          {% endif %}
+            <span class="badge badge-primary">{{ cluster.r_entity }}</span>
+            <span class="badge badge-secondary">{{ cluster.r_keyword }}</span>
+        {% if user.is_authenticated %}
+            <div class="position-absolute bottom-0 end-0">
+                <form method="POST" id="delete" onsubmit="return display()">
+                  {% csrf_token %}
+                  <input id="tag" type="submit" class="btn btn-outline-success btn-floating save" value="+"/>
+                  <input id="tag" name="cid" type="hidden" value="{{ cluster.r_title }}"/>
+                  <input id="tag" name="stories" type="hidden" value="{{ cluster.r_id }}"/>
+                </form>
+                <script>
+                  function display() {
+                      var r=confirm("Are you sure you want to add the articles in this group to the library?");
+                      if (r==true){
+                          alert("Added!");
+                      }
+                      else{
+                        return false;
+                      }
+                  }
+                </script>
+            </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<br>
+</body>
+<!-- MDB -->
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/5.0.0/mdb.min.js"
+></script>
+</html>
